@@ -57,7 +57,22 @@ app.get('/search', (req, res) => {
           console.error('Error querying MySQL database:', error);
           return res.status(500).json({ error });
       }
-      res.json(results);
+
+      if(results.length <= 0) {
+        con.query(`SELECT * 
+        FROM book 
+        order by levenshtein('${searchTerm}', name) ASC
+        LIMIT 10;`), (error, results) => {
+          if (error) {
+            console.error('Error querying MySQL database:', error);
+            return res.status(500).json({ error });
+        }
+        res.json(results);
+        }
+      } else {
+        res.json(results);
+      }
+      
   });
 });
 
@@ -101,6 +116,30 @@ app.post('/update/rental', (req, res) => {
   con.query(query, (err, result) => {
       if (err) throw err;
       console.log(`Insert data ${book_id}, ${userID} done`);
+      res.sendStatus(200);
+  });
+});
+
+app.get('/api/user/ep', (req, res) => {
+  // Truy vấn cơ sở dữ liệu để tìm kiếm sản phẩm thỏa mãn điều kiện
+  con.query(`SELECT ad FROM customer
+              WHERE email = '${username}' and password = '${password}'`, (error, results) => {
+      if (error) {
+          console.error('Error querying MySQL database:', error);
+          return res.status(500).json({ error });
+      }
+      res.json(results);
+  });
+});
+
+app.post('/add', (req, res) => {
+  const { ten, link, type } = req.body;
+
+  const query = `INSERT INTO book (title, name, link) VALUES ('${type}', '${ten}', '${link}')`;
+
+  con.query(query, (err, result) => {
+      if (err) throw err;
+      console.log(`Insert data done`);
       res.sendStatus(200);
   });
 });
@@ -150,6 +189,24 @@ app.post('/api/login', async (req, res) => {
 
     // Trả về token cho người dùng
     res.status(200).json({ customer_id });
+  });
+});
+
+app.post('/api/register', async (req, res) => {
+  username = req.body.username;
+  password = req.body.password;
+  //const { username: reqUsername, password: reqPassword } = req.body;
+  const firstName=req.body.firstName;
+  const lastName=req.body.firstName;
+  const phone=req.body.firstName;
+  const address=req.body.firstName;
+
+  const query = `INSERT INTO customer (email, password, first_name, last_name, phone, address) VALUES ('${username}', '${password}', '${firstName}', '${lastName}', '${phone}', '${address}')`;
+
+  con.query(query, (err, result) => {
+      if (err) throw err;
+      console.log(`Insert data ${username}, ${password} done`);
+      res.sendStatus(200);
   });
 });
 

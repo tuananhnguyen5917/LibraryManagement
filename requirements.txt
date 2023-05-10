@@ -1,0 +1,20 @@
+# client
+npm i react-router-dom
+npm i antd
+npm i bootstrap
+npm i react-bootstrap
+npm i axios
+npm install react-pdf
+#server
+npm init -y
+npm i
+npm i mysql
+npm i mongodb
+npm i cors
+npm i express
+npm i axios
+
+#######################
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+sudo systemctl status postgresql
